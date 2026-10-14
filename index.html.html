@@ -1,368 +1,528 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مسابقة ولاية إبراء التعليمية</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts - Tajawal for clean Arabic typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-        .pattern-bg {
-            background-color: #065f46;
-            background-image: radial-gradient(#047857 1px, transparent 1px), radial-gradient(#047857 1px, #065f46 1px);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
-        }
-        .transition-all-custom {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>اقرأ عُمان | تحدي الموسوعة العُمانية</title>
+<!-- مكتبة Firebase للربط السحابي -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<style>
+:root{--green:#123e38;--gold:#bf8e44;--paper:#fffcf5}*{box-sizing:border-box}body{margin:0;background:#eee9df;color:#193c36;font-family:Tahoma,Arial,sans-serif;line-height:1.9}header{background:var(--green);color:white;padding:22px 6%;display:flex;justify-content:space-between;align-items:center;gap:20px}header small{color:#e4cfaa}main{max-width:1000px;margin:32px auto;padding:0 20px}.hero{display:grid;grid-template-columns:1fr auto;gap:25px;align-items:center}h1{font-size:clamp(32px,6vw,58px);line-height:1.3;margin:12px 0}h2{line-height:1.5}.tag{color:#836025;font-size:14px;letter-spacing:1px}.seal{border:1px solid var(--gold);border-radius:50%;width:110px;height:110px;display:grid;place-content:center;text-align:center;color:#86602b;font-weight:bold}.card{background:var(--paper);border:1px solid #dfd5c3;border-radius:22px;padding:clamp(20px,4vw,40px);box-shadow:0 10px 35px #163c3410;margin-bottom:22px}.notice{background:#f1e6cf;border-right:4px solid var(--gold);padding:12px 18px;border-radius:8px;font-size:14px;margin-bottom:20px}.page{margin:20px 0;padding:20px 0;border-bottom:2px solid var(--gold)}.page p{font-size:18px;text-align:justify}.row{display:flex;gap:15px;flex-wrap:wrap;margin-top:20px}.row label{flex:1;min-width:180px}input,select{width:100%;padding:13px;border:1px solid #cabfae;border-radius:10px;background:white;font:inherit;color:var(--green)}button{background:var(--green);color:white;border:0;border-radius:12px;padding:13px 24px;font:inherit;font-weight:bold;cursor:pointer}button.secondary{background:#e7dfd0;color:var(--green)}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.hidden{display:none!important}fieldset{border:0;padding:0;margin:0 0 25px}legend{font-size:18px;font-weight:bold;margin-bottom:12px;color:var(--green)}.option{display:flex;gap:12px;align-items:center;padding:13px 16px;border:1px solid #ded5c5;border-radius:12px;margin:9px 0;cursor:pointer;background:white}.option:has(input:checked){background:#e2eee7;border-color:#386e58}.option input{width:20px;height:20px;flex-shrink:0;accent-color:var(--green)}progress{width:100%;height:12px;accent-color:var(--green)}#error{color:#a12f25;font-weight:bold;margin-top:10px}.score{font-size:58px;color:var(--gold);font-weight:bold;line-height:1.5}pre{white-space:pre-wrap;font:inherit;background:#f0eee6;padding:20px;border-radius:12px}footer{text-align:center;padding:25px;font-size:13px;color:#64746d}details{margin-top:20px}summary{cursor:pointer}
+.admin-btn{background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:0;text-align:right;}
+table{width:100%;border-collapse:collapse;margin-top:15px;background:white}th,td{border:1px solid #cabfae;padding:10px;text-align:right;font-size:14px}th{background:var(--green);color:white}
+.stats-box{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:15px;margin-bottom:20px}
+.stat-card{background:#f1e6cf;border:1px solid var(--gold);border-radius:12px;padding:15px;text-align:center}
+.stat-card h3{margin:0 0 5px;font-size:16px;color:var(--green)}
+.stat-card p{margin:0;font-size:24px;font-weight:bold;color:var(--gold)}
+.wheel-container{text-align:center;margin-top:20px}
+.wheel-wrapper{position:relative;width:300px;height:300px;margin:0 auto 20px}
+#wheel{width:100%;height:100%;border-radius:50%;border:8px solid var(--green);position:relative;overflow:hidden;transition:transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);background:#ddd7cb}
+.wheel-pointer{position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-bottom:30px solid var(--gold);z-index:10}
+@media(max-width:550px){header{display:block}.seal{width:80px;height:80px;font-size:13px}.page{padding:15px 0}.page p{font-size:17px}}@media print{header,.actions,details,.hero,footer{display:none}body{background:white}.card{box-shadow:none}}
+</style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-slate-50">
+<body>
+<header>
+  <div>
+    <button id="admin-trigger" class="admin-btn" title="لوحة التحكم"><b>مركز مصادر التعلم</b></button><br>
+    <small>مدرسة أبو عبيدة للبنين ١٠–١٢</small>
+  </div>
+  <small>تحدي القراءة والمعرفة · النسخة المعتمدة</small>
+</header>
+<main>
+<div class="hero">
+  <div>
+    <div class="tag">نقرأ • نفهم • نكتشف</div>
+    <h1>اقرأ عُمان</h1>
+    <p>رحلة في تراجم أعلام علماء عُمان، يتبعها تحدٍّ من ٦ أسئلة.</p>
+  </div>
+  <div class="seal">تحدي<br>الموسوعة</div>
+</div>
 
-    <header class="pattern-bg text-white shadow-md py-6 px-4">
-        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 text-center sm:text-right">
-                <div class="bg-amber-500/20 p-3 rounded-2xl border border-amber-400/30">
-                    <svg class="w-8 h-8 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide">مركز مصادر التعلم</h1>
-                    <p class="text-emerald-100 text-sm">مسابقة معلومات ولاية إبراء - سلطنة عُمان</p>
-                </div>
-            </div>
-            <div class="bg-emerald-900/60 px-4 py-2 rounded-xl border border-emerald-700/55 text-xs text-emerald-200">
-                <span>المرحلة الدراسية: التعليم المدرسي</span>
-            </div>
-        </div>
-    </header>
+<!-- رسالة توقف المسابقة عند إغلاقها من المعلم -->
+<section id="closed-notice" class="card hidden" style="text-align:center; background:#f1e6cf; border-color:var(--gold);">
+  <h2 style="color:#a12f25;">عذراً، تم إغلاق باب المشاركة في المسابقة حالياً من قِبل مركز مصادر التعلم.</h2>
+  <p>شكراً لاهتمامك، يمكنك متابعة الإعلانات لمعرفة مواعيد المسابقات القادمة.</p>
+</section>
 
-    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-8">
+<!-- شاشة القراءة والأسئلة في شاشة واحدة -->
+<section id="quiz-container" class="card">
+  <div class="notice">اقرأ النص التالي بعناية، ثم أجب عن الأسئلة الموجودة في الأسفل وأرسل مشاركتك:</div>
+  
+  <article class="page">
+    <div class="tag">إتحاف الأعيان في تاريخ بعض علماء عُمان</div>
+    <h2>إتحاف الأعيان<br><small>في تراجم أعلام عُمان</small></h2>
+    <p>«إتحاف الأعيان في تاريخ بعض علماء عُمان» موسوعة في تراجم أعلام عُمان، ألفها سيف بن حمود بن حامد البطاشي (ت: ١٤٢٠هـ/١٩٩٩م).</p>
+    <p>شرع المؤلف في تصنيف هذه الموسوعة قبل سنة ١٩٩٠م (١٤١٠هـ) بقليل، وتوقف عن إتمامها أواخر سنة ١٩٩٨م (١٤١٨هـ)، فأخرج منها ثلاثة أجزاء.</p>
+    <p>صدر الجزء الأول في عام ١٩٩٢م (١٤١٢هـ)، يشتمل على علماء القرن الأول حتى أواخر القرن الثامن الهجري (القرن السابع حتى القرن الرابع عشر الميلادي)، وضَمّ قرابة مائة ترجمة، وقيد أسماء ١٣٢ عَلَماً لم تتوفر عنهم معلومات كافية. ثم طبع طبعة ثانية سنة ٢٠٠١م (١٤١٩هـ) عن مكتب المستشار الخاص لجلالة السلطان للشؤون الدينية والتاريخية، مع إضافات واستدراكات وتصحيحات للمؤلف.</p>
+    <p>أما الجزء الثاني فطبق سنة ١٩٩٤م (١٤١٥هـ) في ٣٠٨ صفحات، وحوى تراجم مطولة لأكثر من ٤٠ عَلَماً من أعلام القرنين التاسع والعاشر الهجريين (الخامس عشر والسادس عشر الميلاديين)، وقيد أيضاً أسماء ٢٧ عَلَماً آخرين لم تورد المصادر أخباراً وافية عنهم. صدر الجزء الثالث سنة ٢٠٠١م (١٤٢٢هـ) بعد وفاة المؤلف، وضم تراجم بقية الأعلام إلى منتصف القرن الثالث عشر الهجري (التاسع عشر الميلادي)، وعددها ٢٤١ ترجمة.</p>
+    <p>كان دافع المؤلف وراء إبراز هذا الكتاب هو قلة المصنفات العُمانية في علم التاريخ، وغياب تفاصيل حياة كثير من الأعلام المشهورين. وتجلت نظرة البطاشي إلى التاريخ وأهمية تدوينه في مواضع عدة من كتابه، أبرزها عند حديثه عن النباهنة وإغفال المؤرخين لوقائع حياتهم، وأشار أكثر من مرة إلى فقدان كتب التراث العُماني نتيجة عوامل عدة.</p>
+    <p>رتب المؤلف أعلام الموسوعة حسب التسلسل الزمني «إلا لأمر اقتضته الضرورة من تقديم أو تأخير»، كذكره أعلاماً من عُمان استوطنوا خارجها، وسرده أسماء العلماء المتسلسلين من بيت واحد في موضع واحد. ولم يلتزم البطاشي منهجا واحدا في ترجمته للأعلام، بل كان يطيل ويوجز حسب المعلومات المتوفرة لديه، وربما ضمن بعض التراجم كل ما تعلق بها ولو خرج عن موضوع الكتاب، وقد يسهب في مناقشة قضايا تاريخية عندما يرى المقام يستدعي ذلك، وينبه على المشتبه من الأسماء خشية الوقوع في خلط، وغالباً ما يعدد في آخر الترجمة من يحضره من العلماء المنتسبين إلى قبيلة المترجم له أو المنتمين إلى بلدته.</p>
+  </article>
 
-        <!-- Welcome Screen -->
-        <div id="welcome-screen" class="bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 text-center transition-all-custom">
-            <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-inner">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-3">اختبر معلوماتك عن ولاية إبراء</h2>
-            <p class="text-slate-600 text-sm sm:text-base max-w-lg mx-auto mb-8 leading-relaxed">
-                مسابقة تفاعلية ممتعة مصممة للطلاب لتقييم استيعابهم للمعلومات الجغرافية والتاريخية والثقافية عن ولاية إبراء بمحافظة شمال الشرقية. تتكون المسابقة من 6 أسئلة موضوعية مع تقييم فوري.
-            </p>
-            <button onclick="startQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all-custom transform hover:-translate-y-0.5 text-base w-full sm:w-auto">
-                ابدأ المسابقة الآن
-            </button>
-        </div>
+  <div style="margin-top: 30px;">
+    <div class="tag">تحدي الفهم والاستيعاب</div>
+    <h2>أسئلة التحدي</h2>
+    <p id="counter" aria-live="polite">أجبت عن ٠ من ٦</p>
+    <progress id="progress" value="0" max="6"></progress>
+    
+    <div class="row" style="margin-bottom: 25px;">
+      <label>اسم الطالب<input id="name" maxlength="80" placeholder="الاسم الثلاثي" autocomplete="name" required></label>
+      <label>الصف والشعبة<input id="classroom" maxlength="30" placeholder="مثال: ١١ / ٣" required></label>
+    </div>
 
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 transition-all-custom">
-            <!-- Progress Bar Header -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                <span id="question-counter" class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl">السؤال 1 من 6</span>
-                <div class="w-32 sm:w-48 bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="bg-emerald-600 h-full w-0 transition-all-custom"></div>
-                </div>
-            </div>
+    <form id="questions"></form>
+    
+    <div class="actions">
+      <button id="finish">إرسال الإجابات النهائية</button>
+    </div>
+    <p id="error" role="alert"></p>
+  </div>
+</section>
 
-            <!-- Question Box -->
-            <div class="mb-8">
-                <h3 id="question-text" class="text-lg sm:text-xl font-bold text-slate-800 leading-snug"></h3>
-            </div>
+<section id="result" class="card hidden" style="text-align:center;">
+  <div class="tag">مشاركة الطالب</div>
+  <h2 style="color:var(--green)">شكرا، تم إرسال إجابتك بنجاح!</h2>
+  <p id="status" role="status" aria-live="polite">جاري العودة إلى الصفحة الرئيسية للمسابقة خلال <span id="countdown" style="font-weight:bold; color:var(--gold);">٥</span> ثوانٍ...</p>
+</section>
 
-            <!-- Options Container -->
-            <div id="options-container" class="space-y-3 mb-8">
-                <!-- Dynamically injected options -->
-            </div>
+<!-- لوحة التحكم الخاصة بمركز مصادر التعلم -->
+<section id="admin-panel" class="card hidden">
+  <div class="tag">لوحة المشرفين والإحصائيات السحابية</div>
+  <h2>تحليل النتائج والتحكم بالمسابقة</h2>
+  
+  <div style="background:#f1e6cf; border:2px solid var(--gold); padding:15px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div>
+      <h3 style="margin:0 0 5px; color:var(--green)">حالة تلقي الإجابات:</h3>
+      <p id="status-text" style="margin:0; font-weight:bold; color:#123e38;">المسابقة مفتوحة حالياً</p>
+    </div>
+    <button id="toggle-lock-btn" style="background:#a12f25;">إغلاق المسابقة ووقف الإجابات 🔒</button>
+  </div>
 
-            <!-- Feedback Message -->
-            <div id="feedback-box" class="hidden p-4 rounded-2xl mb-6 text-sm font-medium"></div>
+  <div class="stats-box">
+    <div class="stat-card">
+      <h3>المشاركون</h3>
+      <p id="stat-total-students">٠</p>
+    </div>
+    <div class="stat-card">
+      <h3>إجمالي الإجابات الصحيحة</h3>
+      <p id="stat-total-correct">٠</p>
+    </div>
+  </div>
 
-            <!-- Next Button -->
-            <div class="flex justify-end">
-                <button id="next-btn" onclick="nextQuestion()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all-custom text-sm">
-                    السؤال التالي
-                </button>
-            </div>
-        </div>
+  <div style="background:#f1e6cf; padding:15px; border-radius:12px; margin-bottom:20px;">
+    <h3 style="margin-top:0; color:var(--green)">تفريز الإجابات الصحيحة لكل سؤال:</h3>
+    <ul id="q-stats-list" style="margin:0; padding-right:20px;"></ul>
+  </div>
 
-        <!-- Result Screen -->
-        <div id="result-screen" class="hidden bg-white rounded-3xl shadow-xl p-6 sm:p-10 border border-slate-100 text-center transition-all-custom">
-            <div id="result-icon" class="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-inner text-emerald-600 bg-emerald-50">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-2">أحسنت! أتممت المسابقة بنجاح</h2>
-            <p id="result-message" class="text-slate-600 text-sm sm:text-base mb-6"></p>
-            
-            <div class="bg-slate-50 rounded-2xl p-6 max-w-xs mx-auto mb-8 border border-slate-100">
-                <span class="text-xs text-slate-500 block mb-1">النتيجة النهائية</span>
-                <span id="final-score" class="text-4xl font-black text-emerald-600">0 / 6</span>
-            </div>
+  <div class="actions" style="margin-bottom:20px;">
+    <button id="open-wheel-btn">🎡 فتح عجلة الحظ (قرعة الفائزين بالدرجة الكاملة)</button>
+    <button id="export-csv" class="secondary" style="background:#386e58; color:white;">📥 تصدير إلى جدول (CSV)</button>
+  </div>
 
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="restartQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all-custom text-sm">
-                    إعادة المسابقة
-                </button>
-                <a href="#github-guide" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl transition-all-custom text-sm inline-flex items-center justify-center gap-2">
-                    كيفية رفع الكود على GitHub
-                </a>
-            </div>
-        </div>
+  <h3 style="color:var(--green)">سجل جميع الردود والتفاصيل السحابية</h3>
+  <div style="max-height: 400px; overflow-y: auto; border: 1px solid #cabfae;">
+    <table id="responses-table">
+      <thead>
+        <tr>
+          <th>وقت الإرسال</th>
+          <th>اسم الطالب</th>
+          <th>الصف والشعبة</th>
+          <th>الدرجة</th>
+          <th>الإجابات التفصيلية</th>
+        </tr>
+      </thead>
+      <tbody id="responses-body"></tbody>
+    </table>
+  </div>
+  <div class="actions" style="margin-top: 15px;">
+    <button id="clear-data" style="background:#a12f25;">حذف جميع الردود السحابية</button>
+    <button id="back-to-home" class="secondary">العودة للمسابقة</button>
+  </div>
+</section>
 
-        <section id="github-guide" class="mt-12 bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-slate-100">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-slate-900 text-white p-2.5 rounded-xl">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800">طريقة حفظ ونشر الكود على GitHub Pages</h3>
-            </div>
-            <p class="text-slate-600 text-sm mb-6 leading-relaxed">
-                يمكنك تحويل هذه الصفحة إلى موقع إلكتروني متاح للجميع عبر الإنترنت بطريقة مجانية تماماً باستخدام ميزة (GitHub Pages). إليك الخطوات البسيطة:
-            </p>
-            <ol class="space-y-4 text-sm text-slate-700">
-                <li class="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <span class="bg-emerald-600 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">1</span>
-                    <div>
-                        <strong class="block text-slate-900 mb-1">إنشاء حساب وملف جديد</strong>
-                        قم بتسجيل الدخول إلى حسابك على <a href="https://github.com" target="_blank" class="text-emerald-600 underline font-medium">GitHub</a>، ثم انشئ مستودعاً (Repository) جديداً وليكن باسم <code class="bg-white px-2 py-0.5 rounded border border-slate-200 text-emerald-700 font-mono">ibra-quiz</code> واجعله عاماً (Public).
-                    </div>
-                </li>
-                <li class="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <span class="bg-emerald-600 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">2</span>
-                    <div>
-                        <strong class="block text-slate-900 mb-1">حفظ ملف الكود</strong>
-                        قم بنسخ هذا الكود بالكامل واحفظه في ملف نصي بصيغة HTML وسمِّه <code class="bg-white px-2 py-0.5 rounded border border-slate-200 text-emerald-700 font-mono">index.html</code>.
-                    </div>
-                </li>
-                <li class="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <span class="bg-emerald-600 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">3</span>
-                    <div>
-                        <strong class="block text-slate-900 mb-1">رفع الملف إلى المستودع</strong>
-                        من داخل المستودع على GitHub، انقر على خيار <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">Add file</code> ثم <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">Upload files</code> وارفع ملف <code class="bg-emerald-700 font-mono text-emerald-700 bg-white">index.html</code> واضغط على <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">Commit changes</code>.
-                    </div>
-                </li>
-                <li class="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <span class="bg-emerald-600 text-white font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">4</span>
-                    <div>
-                        <strong class="block text-slate-900 mb-1">تفعيل النشر التلقائي (GitHub Pages)</strong>
-                        انتقل إلى إعدادات المستودع (<code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">Settings</code>)، ثم من القائمة الجانبية اختر <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">Pages</code>. تحت قسم Build and deployment اختر الفرع <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">main</code> (أو master) مع مجلد <code class="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono">/ (root)</code> واضغط Save.
-                    </div>
-                </li>
-            </ol>
-        </section>
+<!-- نافذة عجلة الحظ -->
+<section id="wheel-panel" class="card hidden">
+  <div class="tag">قرعة الفائزين</div>
+  <h2>عجلة الحظ لاختيار الفائز</h2>
+  <p>الطلاب المؤهلون للقرعة (الحاصلون على العلامة الكاملة ٦/٦): <span id="eligible-count" style="font-weight:bold; color:var(--gold);">٠</span></p>
+  
+  <div class="wheel-container">
+    <div class="wheel-wrapper">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheel-canvas" width="300" height="300" style="width:100%; height:100%; border-radius:50%; border:6px solid var(--green); background:white;"></canvas>
+    </div>
+    <button id="spin-btn">دوران العجلة 🎯</button>
+    <p id="winner-announcement" style="font-size:20px; font-weight:bold; color:var(--green); margin-top:15px;"></p>
+  </div>
 
-    </main>
+  <div class="actions">
+    <button id="back-to-admin" class="secondary">العودة لوحة التحكم</button>
+  </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-6 px-4 text-center text-xs mt-12 border-t border-slate-800">
-        <p>جميع الحقوق محفوظة © مركز مصادر التعلم - ولاية إبراء | تصميم تعليمي تفاعلي</p>
-    </footer>
+<p id="error" role="alert"></p>
+</main>
+<footer>إعداد مركز مصادر التعلم في مدرسة أبو عبيدة للبنين ١٠–١٢</footer>
 
-    <script>
-        const questions = [
-            {
-                question: "تعتبر ولاية إبراء المركز الإداري لمحافظة:",
-                options: [
-                    "جنوب الشرقية",
-                    "شمال الشرقية",
-                    "مسقط",
-                    "الداخلية"
-                ],
-                correct: 1,
-                explanation: "إجابة صحيحة! ولاية إبراء هي المركز الإداري لمحافظة شمال الشرقية."
-            },
-            {
-                question: "شعار ولاية إبراء الرسمي هو:",
-                options: [
-                    "جبل الناصري",
-                    "وادي البطحاء",
-                    "مسجد العقبة",
-                    "عين أبو صالح"
-                ],
-                correct: 2,
-                explanation: "إجابة صحيحة! اتخذت الولاية من مسجد العقبة شعاراً لها."
-            },
-            {
-                question: "الوادي الذي يحتوي على تربة 'اللاتريت' بكميات كبيرة في ولاية إبراء هو:",
-                options: [
-                    "وادي نام",
-                    "وادي البطحاء",
-                    "وادي قفيفة",
-                    "وادي المزروع"
-                ],
-                correct: 0,
-                explanation: "إجابة صحيحة! وادي نام يحتوي على تربة اللاتريت بكميات كبيرة."
-            },
-            {
-                question: "بلغ عدد سكان ولاية إبراء حسب التعداد العام للسكان والمساكن والمنشآت لعام 2010م:",
-                options: [
-                    "19,986 نسمة",
-                    "24,473 نسمة",
-                    "27,216 نسمة",
-                    "30,500 نسمة"
-                ],
-                correct: 2,
-                explanation: "إجابة صحيحة! بلغ عدد السكان في عام 2010م نحو 27216 نسمة."
-            },
-            {
-                question: "تحد ولاية إبراء من جهة الجنوب ولاية دماء والطائيين.",
-                options: [
-                    "صواب",
-                    "خطأ"
-                ],
-                correct: 1,
-                explanation: "إجابة صحيحة! خطأ، الحد الجنوبي لولاية إبراء هو ولاية القابل، بينما تحدها دماء والطائيين من جهة الشرق."
-            },
-            {
-                question: "تشتهر ولاية إبراء بأصناف معينة من النخيل، مثل نخلة:",
-                options: [
-                    "الفرض",
-                    "الخلاص",
-                    "رأس الضيضو",
-                    "الخنيزي"
-                ],
-                correct: 2,
-                explanation: "إجابة صحيحة! تشتهر الولاية بنخلة رأس الضيضو."
-            }
-        ];
+<script>
+  // إعدادات فايربيس الخاصة بك
+  const firebaseConfig = {
+    apiKey: "AIzaSyA9TpI9Nj8GhV_YOjdv82HSjtNPsMxDsaQ",
+    authDomain: "abu-obeida-quiz.firebaseapp.com",
+    databaseURL: "https://abu-obeida-quiz-default-rtdb.firebaseio.com",
+    projectId: "abu-obeida-quiz",
+    storageBucket: "abu-obeida-quiz.firebasestorage.app",
+    messagingSenderId: "1049164137209",
+    appId: "1:1049164137209:web:8b51484761172e5650d828"
+  };
 
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let answered = false;
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const quizScreen = document.getElementById('quiz-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-        const questionCounter = document.getElementById('question-counter');
-        const progressBar = document.getElementById('progress-bar');
-        const feedbackBox = document.getElementById('feedback-box');
-        const nextBtn = document.getElementById('next-btn');
+// الأسئلة الـ 6 الموضوعية الخاصة بالنص
+const data = [
+  {
+    q: 'من هو مؤلف موسوعة "إتحاف الأعيان في تاريخ بعض علماء عُمان"؟',
+    o: ['سيف بن حمود البطاشي', 'السالمي', 'الإبي سيدي', 'ابن رزيق'],
+    correct: 0
+  },
+  {
+    q: 'كم عدد الأجزاء التي أخرجها المؤلف من الموسوعة قبل توقفه عن إتمامها عام 1998م؟',
+    o: ['جزء واحد', 'أربعة أجزاء', 'ثلاثة أجزاء', 'خمسة أجزاء'],
+    correct: 2
+  },
+  {
+    q: 'أي الأجزاء صدر بعد وفاة المؤلف واشتمل على 241 ترجمة حتى منتصف القرن الثالث عشر الهجري؟',
+    o: ['الجزء الأول', 'الجزء الثاني', 'الجزء الثالث', 'الملحق الخاص'],
+    correct: 2
+  },
+  {
+    q: 'ما هو الدافع الرئيسي وراء إبراز المؤلف لهذا الكتاب؟',
+    o: ['كثرة المراجع وتوافرها بسهولة', 'قلة المصنفات العُمانية في علم التاريخ وغياب تفاصيل حياة الأعلام', 'طلب رسمي من الجهات الحكومية', 'جمع الشعر العُماني القديم'],
+    correct: 1
+  },
+  {
+    q: 'كيف رتب المؤلف أعلام الموسوعة في أصله العام؟',
+    o: ['حسب الحروف الهجائية', 'حسب القبائل والبلدان', 'حسب التسلسل الزمني', 'حسب أهمية العالم وشهرته'],
+    correct: 2
+  },
+  {
+    q: 'في أي عام صدرت الطبعة الثانية للموسوعة عن مكتب المستشار الخاص لجلالة السلطان للشؤون الدينية والتاريخية؟',
+    o: ['1992م', '1994م', '2001م', '1999م'],
+    correct: 2
+  }
+];
 
-        function startQuiz() {
-            welcomeScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            currentQuestionIndex = 0;
-            score = 0;
-            loadQuestion();
-        }
+const $=id=>document.getElementById(id);
+const ar=n=>n.toLocaleString('ar-OM');
+let liveResponses = [];
+let isQuizClosed = false;
+let redirectTimer = null;
 
-        function loadQuestion() {
-            answered = false;
-            feedbackBox.classList.add('hidden');
-            nextBtn.classList.add('hidden');
-            
-            const q = questions[currentQuestionIndex];
-            questionText.textContent = q.question;
-            questionCounter.textContent = `السؤال ${currentQuestionIndex + 1} من ${questions.length}`;
-            
-            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
-            progressBar.style.width = `${progressPercent}%`;
+db.ref('aqra_oman_status/closed').on('value', (snapshot) => {
+  isQuizClosed = snapshot.val() === true;
+  updateQuizStatusUI();
+});
 
-            optionsContainer.innerHTML = '';
-            q.options.forEach((option, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-right p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 font-medium text-slate-700 transition-all-custom text-sm sm:text-base flex items-center justify-between group';
-                
-                const span = document.createElement('span');
-                span.textContent = option;
-                
-                const indicator = document.createElement('span');
-                indicator.className = 'w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center text-xs group-hover:border-emerald-500 group-hover:text-emerald-600';
-                indicator.textContent = String.fromCharCode(65 + index); // A, B, C, D
+db.ref('aqra_oman_responses').on('value', (snapshot) => {
+  const val = snapshot.val();
+  liveResponses = [];
+  if (val) {
+    Object.keys(val).forEach(key => {
+      liveResponses.push({ id: key, ...val[key] });
+    });
+  }
+});
 
-                btn.appendChild(span);
-                btn.appendChild(indicator);
-                
-                btn.onclick = () => selectOption(index, btn);
-                optionsContainer.appendChild(btn);
-            });
-        }
+function updateQuizStatusUI() {
+  if (isQuizClosed) {
+    if(!$('admin-panel').classList.contains('hidden') === false) {$('quiz-container').classList.add('hidden');
+      $('result').classList.add('hidden');$('closed-notice').classList.remove('hidden');
+    }
+    if($('toggle-lock-btn')) {$('toggle-lock-btn').style.background = '#386e58';
+      $('toggle-lock-btn').textContent = 'فتح المسابقة واستئناف الإجابات 🔓';
+      $('status-text').textContent = 'المسابقة مغلقة حالياً ولا تقبل ردود جديدة';
+      $('status-text').style.color = '#a12f25';
+    }
+  } else {
+    $('closed-notice').classList.add('hidden');
+    if($('toggle-lock-btn')) {$('toggle-lock-btn').style.background = '#386e58';
+      $('toggle-lock-btn').textContent = 'إغلاق المسابقة ووقف الإجابات 🔒';
+      $('status-text').textContent = 'المسابقة مفتوحة حالياً لتلقي الردود';
+      $('status-text').style.color = '#123e38';
+    }
+  }
+}
 
-        function selectOption(selectedIndex, selectedBtn) {
-            if (answered) return;
-            answered = true;
+// توليد الأسئلة ديناميكياً داخل نفس الشاشة
+data.forEach((x,i)=>{
+  let f=document.createElement('fieldset'), l=document.createElement('legend');
+  l.textContent=ar(i+1)+' · '+x.q;
+  f.append(l);
+  x.o.forEach((t,j)=>{
+    let lab=document.createElement('label');
+    lab.className='option';
+    let input=document.createElement('input');
+    input.type='radio';
+    input.name='q'+i;
+    input.value=j;
+    lab.append(input, document.createTextNode(t));
+    f.append(lab);
+  });
+  $('questions').append(f);
+});
 
-            const q = questions[currentQuestionIndex];
-            const optionButtons = optionsContainer.getElementsByTagName('button');
+function screen(id){
+  if(isQuizClosed && id !== 'admin-panel' && id !== 'wheel-panel') {
+    $('closed-notice').classList.remove('hidden');
+    ['quiz-container','result'].forEach(x=>$(x).classList.add('hidden'));
+    return;
+  }
+  ['quiz-container','result','admin-panel','wheel-panel','closed-notice'].forEach(x=>{
+    if($(x))$(x).classList.toggle('hidden', x !== id);
+  });
+  $('error').textContent='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-            if (selectedIndex === q.correct) {
-                score++;
-                selectedBtn.classList.remove('bg-slate-50', 'border-slate-200');
-                selectedBtn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900', 'font-bold');
-                feedbackBox.className = 'p-4 rounded-2xl mb-6 text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200';
-                feedbackBox.textContent = q.explanation;
-            } else {
-                selectedBtn.classList.remove('bg-slate-50', 'border-slate-200');
-                selectedBtn.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-900', 'font-bold');
-                
-                // Highlight correct answer
-                optionButtons[q.correct].classList.remove('bg-slate-50', 'border-slate-200');
-                optionButtons[q.correct].classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900', 'font-bold');
-                
-                feedbackBox.className = 'p-4 rounded-2xl mb-6 text-sm font-medium bg-rose-50 text-rose-800 border border-rose-200';
-                feedbackBox.textContent = `إجابة غير دقيقة. الإجابة الصحيحة هي: ${q.options[q.correct]}`;
-            }
+document.addEventListener('change', (e) => {
+  if(e.target.matches('input[type=radio]')) {
+    let n = document.querySelectorAll('input[type=radio]:checked').length;
+    $('counter').textContent='أجبت عن '+ar(n)+' من ٦';
+    $('progress').value=n;
+  }
+});
 
-            // Disable all buttons after selection
-            Array.from(optionButtons).forEach(btn => btn.disabled = true);
+$('finish').onclick=()=>{
+  if(isQuizClosed) {
+    alert('عذراً، تم إغلاق المسابقة.');
+    return;
+  }
+  let student = $('name').value.trim();
+  let classroom = $('classroom').value.trim();
+  if(!student || !classroom){
+    $('error').textContent='أدخل اسم الطالب والالصف والشعبة أولًا.';
+    window.scrollTo({top: $('error').offsetTop, behavior: 'smooth'});
+    return;
+  }
 
-            feedbackBox.classList.remove('hidden');
-            nextBtn.classList.remove('hidden');
+  let answers = data.map((x,i)=>document.querySelector('input[name=q'+i+']:checked'));
+  if(answers.some(x=>!x)){
+    $('error').textContent='أجب عن الأسئلة الستة قبل الإرسال.';
+    window.scrollTo({top: $('error').offsetTop, behavior: 'smooth'});
+    return;
+  }
+  
+  let score = 0;
+  let rawAnswers = [];
+  let userAnswers = data.map((x,i)=> {
+    let ansIndex = Number(answers[i].value);
+    rawAnswers.push(ansIndex);
+    let isCorrect = (ansIndex === x.correct);
+    if(isCorrect) score++;
+    return (i+1) + ". " + x.o[ansIndex] + (isCorrect ? " (✓ صحيح)" : " (✗ خطأ)");
+  });
 
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.textContent = "عرض النتيجة النهائية";
-            } else {
-                nextBtn.textContent = "السؤال التالي";
-            }
-        }
+  let record = {
+    time: new Date().toLocaleString('ar-OM'),
+    student: student,
+    classroom: classroom,
+    score: score,
+    total: data.length,
+    rawAnswers: rawAnswers,
+    answers: userAnswers
+  };
 
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                loadQuestion();
-            } else {
-                showResults();
-            }
-        }
+  db.ref('aqra_oman_responses').push(record).then(() => {
+    screen('result');
+    
+    let timeLeft = 5;
+    $('countdown').textContent = ar(timeLeft);
+    if(redirectTimer) clearInterval(redirectTimer);
+    
+    redirectTimer = setInterval(() => {
+      timeLeft--;
+      if(timeLeft > 0) {
+        $('countdown').textContent = ar(timeLeft);
+      } else {
+        clearInterval(redirectTimer);
+        location.reload();
+      }
+    }, 1000);
 
-        function showResults() {
-            quizScreen.classList.add('hidden');
-            resultScreen.classList.remove('hidden');
-            
-            document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
-            
-            const resultMessage = document.getElementById('result-message');
-            const percentage = (score / questions.length) * 100;
-            
-            if (percentage === 100) {
-                resultMessage.textContent = "ممتاز جداً! لقد أجبت على جميع الأسئلة بدقة فائقة، ولديك معرفة واسعة بولاية إبراء.";
-            } else if (percentage >= 70) {
-                resultMessage.textContent = "أداء رائع وممتاز! لقد حققت نتيجة طيبة تدل على استيعابك للمعلومات.";
-            } else {
-                resultMessage.textContent = "جيد! يمكنك مراجعة النص مرة أخرى وإعادة المحاولة لتحقيق الدرجة الكاملة.";
-            }
-        }
+  }).catch((error) => {
+    $('error').textContent = 'حدث خطأ أثناء الإرسال السحابي، تأكد من الاتصال بالإنترنت.';
+  });
+};
 
-        function restartQuiz() {
-            resultScreen.classList.add('hidden');
-            welcomeScreen.classList.remove('hidden');
-        }
-    </script>
+$('admin-trigger').onclick=()=>{
+  let pass = prompt("أدخل الرقم السري لمركز مصادر التعلم:");
+  if(pass === "1234"){
+    loadAdminDashboard();
+    screen('admin-panel');
+  } else if(pass !== null){
+    alert("الرقم السري غير صحيح!");
+  }
+};
+
+$('toggle-lock-btn').onclick = () => {
+  let newState = !isQuizClosed;
+  db.ref('aqra_oman_status').set({ closed: newState }).then(() => {
+    alert(newState ? "تم إغلاق المسابقة بنجاح. لن يتمكن الطلاب من إرسال إجابات جديدة." : "تم فتح المسابقة واستئناف استقبال الإجابات.");
+  });
+};
+
+function loadAdminDashboard(){
+  updateQuizStatusUI();
+  $('stat-total-students').textContent = ar(liveResponses.length);
+  let totalCorrectAnswers = liveResponses.reduce((sum, item) => sum + item.score, 0);
+  $('stat-total-correct').textContent = ar(totalCorrectAnswers);
+
+  let qList = $('q-stats-list');
+  qList.innerHTML = '';
+  data.forEach((qObj, qIndex) => {
+    let correctCount = liveResponses.filter(item => item.rawAnswers && item.rawAnswers[qIndex] === qObj.correct).length;
+    let li = document.createElement('li');
+    li.textContent = `السؤال (${ar(qIndex+1)}): عدد الإجابات الصحيحة = ${ar(correctCount)} من أصل ${ar(liveResponses.length)} طالب`;
+    qList.append(li);
+  });
+
+  let tbody = $('responses-body');
+  tbody.innerHTML = '';
+  if(liveResponses.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد ردود مسجلة سحابياً حتى الآن.</td></tr>';
+    return;
+  }
+
+  liveResponses.forEach((item)=>{
+    let tr = document.createElement('tr');
+    let ansHtml = item.answers.map(a => `<div>• ${a}</div>`).join('');
+    tr.innerHTML = `
+      <td>${item.time}</td>
+      <td><b>${item.student}</b></td>
+      <td>${item.classroom}</td>
+      <td><span style="color:${item.score === item.total ? 'green' : '#a12f25'}; font-weight:bold;">${item.score} / ${item.total}</span></td>
+      <td>${ansHtml}</td>
+    `;
+    tbody.append(tr);
+  });
+}
+
+$('clear-data').onclick=()=>{
+  let pass = prompt("أدخل الرقم السري لتأكيد حذف جميع الردود من قاعدة البيانات:");
+  if(pass === "1234"){
+    if(confirm("هل أنت متأكد تماماً من حذف جميع الردود سحابياً؟")){
+      db.ref('aqra_oman_responses').remove().then(() => {
+        loadAdminDashboard();
+        alert("تم حذف جميع الردود من السحابة بنجاح.");
+      });
+    }
+  } else if(pass !== null){
+    alert("الرقم السري غير صحيح!");
+  }
+};
+
+$('export-csv').onclick=()=>{
+  if(liveResponses.length === 0){
+    alert("لا توجد بيانات لتصديرها.");
+    return;
+  }
+
+  let csvContent = "\uFEFFوقت الإرسال,اسم الطالب,الصف والشعبة,الدرجة\n";
+  liveResponses.forEach(item => {
+    csvContent += `"${item.time}","${item.student}","${item.classroom}","${item.score}/${item.total}"\n`;
+  });
+
+  let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', 'نتائج_تحدي_اقرا_عمان.csv');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+$('back-to-home').onclick=()=>{
+  location.reload();
+};
+
+$('back-to-admin').onclick=()=>{
+  loadAdminDashboard();
+  screen('admin-panel');
+};
+
+let currentAngle = 0;
+let eligibleStudents = [];
+
+$('open-wheel-btn').onclick = () => {
+  eligibleStudents = liveResponses.filter(item => item.score === item.total).map(item => item.student + ' (' + item.classroom + ')');
+  
+  $('eligible-count').textContent = ar(eligibleStudents.length);$('winner-announcement').textContent = '';
+  
+  if(eligibleStudents.length === 0){
+    alert("لا توجد أسماء مؤهلة بعد (يجب أن يكون لدى الطلاب درجة 6 من 6).");
+    return;
+  }
+  
+  screen('wheel-panel');
+  drawWheel();
+};
+
+function drawWheel() {
+  const canvas = $('wheel-canvas');
+  const ctx = canvas.getContext('2d');
+  const numSlices = eligibleStudents.length;
+  const arcSize = (2 * Math.PI) / numSlices;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const colors = ['#123e38', '#bf8e44', '#386e58', '#e4cfaa', '#163c34', '#836025'];
+
+  eligibleStudents.forEach((student, i) => {
+    const angle = i * arcSize;
+    ctx.beginPath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.moveTo(150, 150);
+    ctx.arc(150, 150, 140, angle, angle + arcSize);
+    ctx.lineTo(150, 150);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(angle + arcSize / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Tahoma";
+    ctx.fillText(student.substring(0, 15), 125, 5);
+    ctx.restore();
+  });
+}
+
+$('spin-btn').onclick = () => {
+  if(eligibleStudents.length === 0) return;
+  $('spin-btn').disabled = true;
+  $('winner-announcement').textContent = 'جاري اختيار الفائز... 🎲';
+
+  const numSlices = eligibleStudents.length;
+  const sliceDegree = 360 / numSlices;
+  const randomSlice = Math.floor(Math.random() * numSlices);
+  
+  const extraSpins = 5 * 360;
+  const targetAngle = currentAngle + extraSpins + (360 - (randomSlice * sliceDegree + sliceDegree / 2)) - (currentAngle % 360);
+  
+  currentAngle = targetAngle;
+  const canvas = $('wheel-canvas');
+  canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+  setTimeout(() => {
+    const winner = eligibleStudents[randomSlice];
+    $('winner-announcement').textContent = `🎉 الفائز بالقرعة هو: ${winner} 🏆`;
+    $('spin-btn').disabled = false;
+  }, 4000);
+};
+</script>
 </body>
 </html>
